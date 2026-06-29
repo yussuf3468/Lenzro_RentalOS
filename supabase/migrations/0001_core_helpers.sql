@@ -1,0 +1,82 @@
+-- =============================================================================
+-- 0001_core_helpers — tenant / JWT helpers + shared triggers
+-- -----------------------------------------------------------------------------
+-- These helpers have NO table dependencies, so they can exist before any domain
+-- tables. Table-dependent helpers (e.g. can(perm) over role_permissions) and the
+-- audit trigger are introduced alongside their tables in later phases.
+--
+-- All functions pin search_path = '' and schema-qualify references for safety.
+-- =============================================================================
+
+-- Active organization id from the JWT (stamped by the Custom Access Token Hook).
+create or replace function public.auth_org_id()
+returns uuid
+language sql
+stable
+set search_path = ''
+as $$
+  select nullif(auth.jwt() -> 'app_metadata' ->> 'organization_id', '')::uuid
+$$;
+
+comment on function public.auth_org_id() is
+  'Active tenant (organization) id from the JWT app_metadata claim.';
+
+-- Active organization role from the JWT.
+create or replace function public.auth_role()
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select auth.jwt() -> 'app_metadata' ->> 'role'
+$$;
+
+comment on function public.auth_role() is
+  'Active organization role from the JWT app_metadata claim.';
+
+-- Is the caller a Lenzro platform admin (cross-tenant)?
+create or replace function public.is_platform_admin()
+returns boolean
+language sql
+stable
+set search_path = ''
+as $$
+  select coalesce((auth.jwt() -> 'app_metadata' ->> 'platform_role') is not null, false)
+$$;
+
+comment on function public.is_platform_admin() is
+  'True when the JWT carries a platform_role (Super Admin / Lenzro Admin).';
+
+-- BEFORE UPDATE trigger: keep updated_at current. Never trust the client value.
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+comment on function public.set_updated_at() is
+  'BEFORE UPDATE trigger: stamps updated_at = now().';
+
+-- BEFORE INSERT/UPDATE trigger: stamp the acting user. Attach only to tables
+-- that carry created_by / updated_by (all tenant tables).
+create or replace function public.set_actor()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' then
+    new.created_by := coalesce(new.created_by, auth.uid());
+  end if;
+  new.updated_by := auth.uid();
+  return new;
+end;
+$$;
+
+comment on function public.set_actor() is
+  'BEFORE INSERT/UPDATE trigger: stamps created_by/updated_by from auth.uid().';
