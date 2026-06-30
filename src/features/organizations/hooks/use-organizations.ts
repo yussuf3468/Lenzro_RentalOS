@@ -112,3 +112,24 @@ export function useAcceptInvitation() {
     },
   });
 }
+
+export function useUpdateMemberRole() {
+  const { claims } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      api.updateMemberRole(userId, role),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: orgKeys.members(claims.organizationId) }),
+  });
+}
+
+export function useRemoveMember() {
+  const { claims } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => api.removeMember(userId),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: orgKeys.members(claims.organizationId) }),
+  });
+}

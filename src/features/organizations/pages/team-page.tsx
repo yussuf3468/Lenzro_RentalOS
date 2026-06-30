@@ -1,33 +1,47 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, Mail, UserPlus, Users } from 'lucide-react';
+import { Copy, Mail, Trash2, UserPlus, Users } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/empty-state';
 import { FormField } from '@/components/form/form-field';
+import { FormSelect } from '@/components/form/form-select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { env } from '@/config/env';
 import { useAuth } from '@/features/auth';
 import { toMessage } from '@/lib/errors';
 import { formatDate } from '@/lib/format';
 import { cn, getInitials } from '@/lib/utils';
+import { type MemberWithProfile } from '@/types/domain';
 import { type InviteResult } from '../api/organizations.api';
-import { useInviteMember, useMembers, usePendingInvitations } from '../hooks/use-organizations';
-import { ASSIGNABLE_ROLES, roleLabel } from '../lib/roles';
+import {
+  useInviteMember,
+  useMembers,
+  usePendingInvitations,
+  useRemoveMember,
+  useUpdateMemberRole,
+} from '../hooks/use-organizations';
+import { ASSIGNABLE_ROLES, MANAGEABLE_ROLES, roleLabel } from '../lib/roles';
 import { inviteMemberSchema, type InviteMemberInput } from '../schemas/organization.schema';
 
-const selectClass =
-  'flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50';
-
 export function TeamPage() {
-  const { claims } = useAuth();
+  const { claims, user } = useAuth();
   const members = useMembers();
   const invitations = usePendingInvitations();
   const invite = useInviteMember();
+  const updateRole = useUpdateMemberRole();
+  const removeMember = useRemoveMember();
   const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -35,6 +49,7 @@ export function TeamPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<InviteMemberInput>({
     resolver: zodResolver(inviteMemberSchema),
@@ -53,39 +68,49 @@ export function TeamPage() {
   });
 
   const inviteLink = inviteResult ? `${env.appUrl}/accept-invite?token=${inviteResult.token}` : '';
-
   const copyLink = async () => {
     await navigator.clipboard.writeText(inviteLink);
     toast.success('Invite link copied');
   };
 
-  const canManage = claims.role === 'owner' || claims.role === 'manager';
+  const canInvite = claims.role === 'owner' || claims.role === 'manager';
+  const canManageRoles = claims.role === 'owner';
+
+  const changeRole = (member: MemberWithProfile, role: string) => {
+    updateRole.mutate(
+      { userId: member.user_id, role },
+      {
+        onSuccess: () => toast.success('Role updated'),
+        onError: (error) => toast.error(toMessage(error)),
+      },
+    );
+  };
+
+  const remove = (member: MemberWithProfile) => {
+    const name = member.profiles?.full_name ?? 'this member';
+    if (!window.confirm(`Remove ${name} from the organization?`)) return;
+    removeMember.mutate(member.user_id, {
+      onSuccess: () => toast.success('Member removed'),
+      onError: (error) => toast.error(toMessage(error)),
+    });
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Team</h1>
-        <p className="text-muted-foreground">Invite teammates and manage who has access.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Staff</h1>
+        <p className="text-muted-foreground">Invite staff, assign roles, and manage who has access.</p>
       </div>
 
-      {canManage ? (
+      {canInvite ? (
         <Card>
           <CardHeader>
             <CardTitle>Invite a teammate</CardTitle>
-            <CardDescription>They'll join with the role you choose.</CardDescription>
+            <CardDescription>They'll join with the role you choose and get their own login.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form
-              onSubmit={onInvite}
-              className="flex flex-col gap-3 sm:flex-row sm:items-end"
-              noValidate
-            >
-              <FormField
-                label="Email"
-                htmlFor="invite-email"
-                className="flex-1"
-                error={errors.email?.message}
-              >
+            <form onSubmit={onInvite} className="flex flex-col gap-3 sm:flex-row sm:items-end" noValidate>
+              <FormField label="Email" htmlFor="invite-email" className="flex-1" error={errors.email?.message}>
                 <Input
                   id="invite-email"
                   type="email"
@@ -94,19 +119,13 @@ export function TeamPage() {
                   {...register('email')}
                 />
               </FormField>
-              <FormField
-                label="Role"
-                htmlFor="invite-role"
-                className="sm:w-44"
-                error={errors.role?.message}
-              >
-                <select id="invite-role" className={selectClass} {...register('role')}>
-                  {ASSIGNABLE_ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {roleLabel(role)}
-                    </option>
-                  ))}
-                </select>
+              <FormField label="Role" htmlFor="invite-role" className="sm:w-44" error={errors.role?.message}>
+                <FormSelect
+                  control={control}
+                  name="role"
+                  id="invite-role"
+                  options={ASSIGNABLE_ROLES.map((role) => ({ value: role, label: roleLabel(role) }))}
+                />
               </FormField>
               <Button type="submit" disabled={invite.isPending}>
                 <UserPlus />
@@ -163,29 +182,74 @@ export function TeamPage() {
             </div>
           ) : members.data && members.data.length > 0 ? (
             <ul className="divide-y divide-border">
-              {members.data.map((member) => (
-                <li key={member.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                  <Avatar>
-                    <AvatarFallback>{getInitials(member.profiles?.full_name)}</AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">
-                      {member.profiles?.full_name ?? 'Pending member'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{roleLabel(member.role)}</p>
-                  </div>
-                  <span
-                    className={cn(
-                      'ml-auto rounded-full px-2 py-0.5 text-xs font-medium',
-                      member.status === 'active'
-                        ? 'bg-success/10 text-success'
-                        : 'bg-muted text-muted-foreground',
-                    )}
+              {members.data.map((member) => {
+                const isSelf = member.user_id === user?.id;
+                const manageable = canManageRoles && !isSelf;
+                return (
+                  <li
+                    key={member.id}
+                    className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3 first:pt-0 last:pb-0"
                   >
-                    {member.status}
-                  </span>
-                </li>
-              ))}
+                    <Avatar>
+                      <AvatarFallback>{getInitials(member.profiles?.full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {member.profiles?.full_name ?? 'Pending member'}
+                        {isSelf ? <span className="ml-2 text-xs text-muted-foreground">You</span> : null}
+                      </p>
+                      {!manageable ? (
+                        <p className="text-xs text-muted-foreground">{roleLabel(member.role)}</p>
+                      ) : null}
+                    </div>
+
+                    {manageable ? (
+                      <Select
+                        value={member.role}
+                        onValueChange={(role) => changeRole(member, role)}
+                        disabled={updateRole.isPending}
+                      >
+                        <SelectTrigger
+                          className="h-8 w-36"
+                          aria-label={`Role for ${member.profiles?.full_name ?? 'member'}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MANAGEABLE_ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {roleLabel(role)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : null}
+
+                    <span
+                      className={cn(
+                        'rounded-full px-2 py-0.5 text-xs font-medium',
+                        member.status === 'active'
+                          ? 'bg-success/10 text-success'
+                          : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      {member.status}
+                    </span>
+
+                    {manageable ? (
+                      <button
+                        type="button"
+                        onClick={() => remove(member)}
+                        disabled={removeMember.isPending}
+                        className="text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+                        aria-label={`Remove ${member.profiles?.full_name ?? 'member'}`}
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <EmptyState
@@ -205,10 +269,7 @@ export function TeamPage() {
           <CardContent>
             <ul className="divide-y divide-border">
               {invitations.data.map((invitation) => (
-                <li
-                  key={invitation.id}
-                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                >
+                <li key={invitation.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                   <span className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Mail className="size-4" />
                   </span>

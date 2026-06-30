@@ -7,9 +7,10 @@
 
 ---
 
-> **Status: Phase 1 — Project initialized.** The foundation (design system, providers, routing,
-> Supabase scaffolding, tooling) is in place. No business features yet — those land phase by
-> phase. See the [roadmap](#roadmap).
+> **Status: Phase 2 — Authentication, organizations & marketing.** Real tables + RLS, the JWT
+> auth hook, full auth flows (sign in/up, verify, reset), atomic org creation, invitations, and
+> an expanded marketing site. Connect Supabase to run it end-to-end — see
+> [docs/SUPABASE.md](docs/SUPABASE.md). The app also boots without Supabase for design review.
 
 ## Tech stack
 
@@ -105,12 +106,14 @@ tests and build on every push and PR.
 ## Documentation
 
 - [Architecture overview](docs/ARCHITECTURE.md) — the full Phase 0 blueprint
+- [UI/UX standards](docs/architecture/ui-standards.md) — the binding quality bar
+- [Supabase setup](docs/SUPABASE.md) — connect a project, apply migrations, enable the auth hook
 - [Developer onboarding](docs/DEVELOPMENT.md)
 - [Environment variables](docs/ENVIRONMENT.md)
 
 ## Roadmap
 
-`0` Architecture · **`1` Project init (you are here)** · `2` Auth + marketing · `3` Dashboard ·
+`0` Architecture · `1` Project init · **`2` Auth + marketing (you are here)** · `3` Dashboard ·
 `4+` Vehicles → Bookings → Customers → Staff → Maintenance → Finance → Contracts → Reports →
 Calendar → Notifications → Documents → Settings → Audit → Support. One module per phase.
 

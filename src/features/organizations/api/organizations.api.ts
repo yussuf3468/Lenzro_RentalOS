@@ -109,3 +109,16 @@ export async function acceptInvitation(token: string): Promise<Organization> {
   if (error) throw error;
   return organizationSchema.parse(data);
 }
+
+export async function updateMemberRole(userId: string, role: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('update_member_role', {
+    p_user_id: userId,
+    p_role: role,
+  });
+  if (error) throw error;
+}
+
+export async function removeMember(userId: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('remove_member', { p_user_id: userId });
+  if (error) throw error;
+}

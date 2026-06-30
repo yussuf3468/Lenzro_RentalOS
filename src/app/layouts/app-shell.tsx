@@ -10,19 +10,13 @@ import { cn } from '@/lib/utils';
 
 const NAV = [
   { label: 'Dashboard', to: '/app', end: true },
-  { label: 'Team', to: '/app/team', end: false },
+  { label: 'Vehicles', to: '/app/vehicles', end: false },
+  { label: 'Customers', to: '/app/customers', end: false },
+  { label: 'Staff', to: '/app/staff', end: false },
 ];
 
 // Modules that arrive in later phases — shown disabled so the shape is visible.
-const COMING_SOON = [
-  'Vehicles',
-  'Bookings',
-  'Customers',
-  'Maintenance',
-  'Finance',
-  'Reports',
-  'Settings',
-];
+const COMING_SOON = ['Bookings', 'Maintenance', 'Finance', 'Reports', 'Settings'];
 
 function TrialBadge() {
   const { data: subscription } = useActiveSubscription();

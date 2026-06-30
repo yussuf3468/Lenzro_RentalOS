@@ -7,6 +7,9 @@ export const ASSIGNABLE_ROLES = [
   'driver',
 ] as const;
 
+/** Roles an Owner can assign when managing an existing member (includes owner). */
+export const MANAGEABLE_ROLES = ['owner', ...ASSIGNABLE_ROLES] as const;
+
 const ROLE_LABELS: Record<string, string> = {
   owner: 'Owner',
   manager: 'Manager',

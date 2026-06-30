@@ -23,11 +23,27 @@ export default defineConfig({
         // Split heavy vendors into their own long-cacheable chunks.
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils'))
+          if (
+            id.includes('framer-motion') ||
+            id.includes('motion-dom') ||
+            id.includes('motion-utils')
+          )
             return 'vendor-motion';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('@tanstack')) return 'vendor-query';
           if (id.includes('react-router') || id.includes('@remix-run')) return 'vendor-router';
+          // Charting stack is only used by the (lazy) dashboard — keep it out of
+          // the eager vendor chunk so it loads with the dashboard route.
+          if (
+            id.includes('recharts') ||
+            id.includes('victory-vendor') ||
+            id.includes('d3-') ||
+            id.includes('react-smooth') ||
+            id.includes('decimal.js') ||
+            id.includes('internmap')
+          ) {
+            return 'vendor-charts';
+          }
           return 'vendor';
         },
       },

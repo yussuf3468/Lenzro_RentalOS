@@ -13,6 +13,8 @@ const MESSAGE_MAP: Record<string, string> = {
   LNZ_NO_ACTIVE_ORG: 'No active organization selected.',
   LNZ_FORBIDDEN: "You don't have permission to do that.",
   LNZ_INVALID_ROLE: 'That role is not valid.',
+  LNZ_LAST_OWNER: 'An organization must always have at least one owner.',
+  LNZ_CANNOT_REMOVE_SELF: "You can't remove yourself.",
 };
 
 export function toMessage(

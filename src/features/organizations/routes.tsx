@@ -23,4 +23,4 @@ export const acceptInviteRoute: RouteObject = {
 };
 
 /** Mounted inside the org-scoped app shell. */
-export const appOrgRoutes: RouteObject[] = [{ path: 'team', element: withSuspense(<TeamPage />) }];
+export const appOrgRoutes: RouteObject[] = [{ path: 'staff', element: withSuspense(<TeamPage />) }];

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight, Building2 } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { FormField } from '@/components/form/form-field';
+import { z } from 'zod';
 import { Logo } from '@/components/logo';
 import { FadeIn } from '@/components/motion-primitives';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -12,29 +12,31 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toMessage } from '@/lib/errors';
 import { useCreateOrganization } from '../hooks/use-organizations';
-import {
-  createOrganizationSchema,
-  type CreateOrganizationInput,
-} from '../schemas/organization.schema';
+
+const schema = z.object({ name: z.string().min(2, 'Enter your business name') });
+type FormInput = z.infer<typeof schema>;
 
 export function OnboardingPage() {
   const navigate = useNavigate();
-  const createOrg = useCreateOrganization();
+  const createBusiness = useCreateOrganization();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateOrganizationInput>({
-    resolver: zodResolver(createOrganizationSchema),
-    defaultValues: { name: '', country: 'KE', currency: 'KES', timezone: 'Africa/Nairobi' },
-  });
+  } = useForm<FormInput>({ resolver: zodResolver(schema), defaultValues: { name: '' } });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async ({ name }) => {
     setFormError(null);
     try {
-      await createOrg.mutateAsync(values);
+      // Smart defaults — the owner never sees country/currency/timezone questions.
+      await createBusiness.mutateAsync({
+        name,
+        country: 'KE',
+        currency: 'KES',
+        timezone: 'Africa/Nairobi',
+      });
       navigate('/app', { replace: true });
     } catch (error) {
       setFormError(toMessage(error));
@@ -47,73 +49,47 @@ export function OnboardingPage() {
         <Logo />
         <ThemeToggle />
       </header>
-      <div className="flex flex-1 items-center justify-center px-6 pb-16">
-        <FadeIn className="w-full max-w-lg">
-          <div className="mb-6 flex flex-col items-center text-center">
-            <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <Building2 className="size-6" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight">Create your organization</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              This is your company workspace — you'll be the owner, on a 14-day free trial.
-            </p>
-          </div>
-          <form
-            onSubmit={onSubmit}
-            className="space-y-4 rounded-xl border bg-card p-6 shadow-sm"
-            noValidate
-          >
+      <div className="flex flex-1 items-center justify-center px-6 pb-20">
+        <FadeIn className="w-full max-w-xl text-center">
+          <span className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            <Sparkles className="size-3.5 text-primary" />
+            Welcome to Lenzro
+          </span>
+          <h1 className="text-3xl font-bold tracking-tight text-balance md:text-4xl">
+            What's your business called?
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+            It's the name your customers will see. You can change it — and everything else — anytime.
+          </p>
+
+          <form onSubmit={onSubmit} className="mx-auto mt-8 max-w-md space-y-3" noValidate>
             {formError ? (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="text-left">
                 <AlertDescription>{formError}</AlertDescription>
               </Alert>
             ) : null}
-            <FormField label="Company name" htmlFor="name" required error={errors.name?.message}>
-              <Input
-                id="name"
-                autoFocus
-                placeholder="Acme Car Rental"
-                aria-invalid={Boolean(errors.name)}
-                {...register('name')}
-              />
-            </FormField>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Country" htmlFor="country" error={errors.country?.message}>
-                <Input
-                  id="country"
-                  maxLength={2}
-                  className="uppercase"
-                  aria-invalid={Boolean(errors.country)}
-                  {...register('country')}
-                />
-              </FormField>
-              <FormField label="Currency" htmlFor="currency" error={errors.currency?.message}>
-                <Input
-                  id="currency"
-                  maxLength={3}
-                  className="uppercase"
-                  aria-invalid={Boolean(errors.currency)}
-                  {...register('currency')}
-                />
-              </FormField>
-            </div>
-            <FormField label="Timezone" htmlFor="timezone" error={errors.timezone?.message}>
-              <Input
-                id="timezone"
-                aria-invalid={Boolean(errors.timezone)}
-                {...register('timezone')}
-              />
-            </FormField>
-            <Button type="submit" className="w-full" disabled={createOrg.isPending}>
-              {createOrg.isPending ? (
-                'Creating…'
+            <Input
+              autoFocus
+              placeholder="e.g. Savanna Car Hire"
+              aria-label="Business name"
+              aria-invalid={Boolean(errors.name)}
+              className="h-12 text-center text-base"
+              {...register('name')}
+            />
+            {errors.name ? (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            ) : null}
+            <Button type="submit" size="lg" className="w-full" disabled={createBusiness.isPending}>
+              {createBusiness.isPending ? (
+                'Setting up…'
               ) : (
                 <>
-                  Create organization <ArrowRight />
+                  Create my business <ArrowRight />
                 </>
               )}
             </Button>
           </form>
+          <p className="mt-4 text-xs text-muted-foreground">Takes 10 seconds · Free for 14 days</p>
         </FadeIn>
       </div>
     </div>
