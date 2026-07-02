@@ -1,32 +1,28 @@
 /**
- * The ambient light layer behind the OS shell — soft, brand-tinted radial blooms
- * that drift slowly. GPU-only (transform/opacity), low opacity, decorative. The
- * global `prefers-reduced-motion` rule in globals.css freezes the drift.
+ * The ambient light layer behind the OS shell — two soft, corner-pinned brand
+ * blooms plus a grain layer that dithers the gradients (prevents banding and
+ * per-panel tint mismatch on large / budget displays). GPU-only, decorative.
+ * The global `prefers-reduced-motion` rule in globals.css freezes the drift.
  */
 export function AmbientCanvas() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div
-        className="absolute -top-[18%] left-[4%] size-[44rem] animate-[aurora-drift-1_24s_ease-in-out_infinite] rounded-full blur-[140px] will-change-transform"
+        className="absolute -top-[24%] -left-[10%] size-[44rem] animate-[aurora-drift-1_28s_ease-in-out_infinite] rounded-full blur-[160px] will-change-transform"
         style={{
           background:
-            'radial-gradient(circle at center, rgb(var(--os-glow-a) / var(--os-glow-strength)), transparent 68%)',
+            'radial-gradient(circle at center, rgb(var(--os-glow-a) / var(--os-glow-strength)), transparent 62%)',
         }}
       />
       <div
-        className="absolute -right-[10%] bottom-[-12%] size-[40rem] animate-[aurora-drift-2_28s_ease-in-out_infinite] rounded-full blur-[150px] will-change-transform"
+        className="absolute -right-[14%] -bottom-[22%] size-[40rem] animate-[aurora-drift-2_32s_ease-in-out_infinite] rounded-full blur-[170px] will-change-transform"
         style={{
           background:
-            'radial-gradient(circle at center, rgb(var(--os-glow-b) / var(--os-glow-strength)), transparent 68%)',
+            'radial-gradient(circle at center, rgb(var(--os-glow-b) / var(--os-glow-strength)), transparent 62%)',
         }}
       />
-      <div
-        className="absolute top-[30%] right-[26%] size-[26rem] animate-[aurora-drift-3_32s_ease-in-out_infinite] rounded-full blur-[130px] will-change-transform"
-        style={{
-          background:
-            'radial-gradient(circle at center, rgb(var(--os-glow-a) / calc(var(--os-glow-strength) * 0.6)), transparent 70%)',
-        }}
-      />
+      {/* Grain dither — breaks up gradient banding on 6-bit/FRC panels. */}
+      <div className="absolute inset-0 bg-grain opacity-[0.04] mix-blend-overlay" />
     </div>
   );
 }

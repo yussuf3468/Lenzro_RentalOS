@@ -35,7 +35,7 @@ export function TodayStrip({ greeting, dateLabel, fleet, ops }: TodayStripProps)
         aria-hidden
         className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgb(var(--os-glow-a) / 0.12), transparent 70%)',
+          background: 'radial-gradient(circle, rgb(var(--os-glow-a) / 0.07), transparent 65%)',
         }}
       />
       <p className="text-sm text-muted-foreground">{dateLabel}</p>

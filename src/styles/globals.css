@@ -67,7 +67,7 @@
   --os-canvas: #eef1f7;
   --os-glow-a: 0 255 153; /* brand green */
   --os-glow-b: 106 160 255; /* info blue */
-  --os-glow-strength: 0.1;
+  --os-glow-strength: 0.06;
 
   --card: #ffffff;
   --card-foreground: #11151f;
@@ -124,7 +124,7 @@
   --os-canvas: #06080d;
   --os-glow-a: 0 255 153; /* brand green */
   --os-glow-b: 106 160 255; /* info blue */
-  --os-glow-strength: 0.16;
+  --os-glow-strength: 0.09;
 
   --card: #11151f;
   --card-foreground: #f7f8fa;
@@ -316,9 +316,12 @@
 }
 
 @utility glass-panel {
-  background-color: color-mix(in oklab, var(--card) 76%, transparent);
-  backdrop-filter: blur(20px) saturate(165%);
-  -webkit-backdrop-filter: blur(20px) saturate(165%);
+  /* Mostly opaque: panels must read as ONE consistent surface color regardless
+     of what ambient glow sits behind them (translucency variance reads as
+     "mismatched colors" on large/budget displays). */
+  background-color: color-mix(in oklab, var(--card) 90%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid color-mix(in oklab, var(--foreground) 9%, transparent);
   box-shadow:
     inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 8%, transparent),
@@ -334,9 +337,9 @@
 }
 
 @utility glass-dock {
-  background-color: color-mix(in oklab, var(--card) 68%, transparent);
-  backdrop-filter: blur(28px) saturate(185%);
-  -webkit-backdrop-filter: blur(28px) saturate(185%);
+  background-color: color-mix(in oklab, var(--card) 82%, transparent);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
   border: 1px solid color-mix(in oklab, var(--foreground) 11%, transparent);
   box-shadow:
     inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 12%, transparent),
@@ -345,9 +348,9 @@
 }
 
 @utility glass-overlay {
-  background-color: color-mix(in oklab, var(--card) 82%, transparent);
-  backdrop-filter: blur(28px) saturate(175%);
-  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  background-color: color-mix(in oklab, var(--card) 93%, transparent);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
   border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
   box-shadow:
     inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 9%, transparent),
