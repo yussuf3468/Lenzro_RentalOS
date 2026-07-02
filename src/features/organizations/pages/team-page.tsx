@@ -99,18 +99,31 @@ export function TeamPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Staff</h1>
-        <p className="text-muted-foreground">Invite staff, assign roles, and manage who has access.</p>
+        <p className="text-muted-foreground">
+          Invite staff, assign roles, and manage who has access.
+        </p>
       </div>
 
       {canInvite ? (
         <Card>
           <CardHeader>
             <CardTitle>Invite a teammate</CardTitle>
-            <CardDescription>They'll join with the role you choose and get their own login.</CardDescription>
+            <CardDescription>
+              They'll join with the role you choose and get their own login.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={onInvite} className="flex flex-col gap-3 sm:flex-row sm:items-end" noValidate>
-              <FormField label="Email" htmlFor="invite-email" className="flex-1" error={errors.email?.message}>
+            <form
+              onSubmit={onInvite}
+              className="flex flex-col gap-3 sm:flex-row sm:items-end"
+              noValidate
+            >
+              <FormField
+                label="Email"
+                htmlFor="invite-email"
+                className="flex-1"
+                error={errors.email?.message}
+              >
                 <Input
                   id="invite-email"
                   type="email"
@@ -119,12 +132,20 @@ export function TeamPage() {
                   {...register('email')}
                 />
               </FormField>
-              <FormField label="Role" htmlFor="invite-role" className="sm:w-44" error={errors.role?.message}>
+              <FormField
+                label="Role"
+                htmlFor="invite-role"
+                className="sm:w-44"
+                error={errors.role?.message}
+              >
                 <FormSelect
                   control={control}
                   name="role"
                   id="invite-role"
-                  options={ASSIGNABLE_ROLES.map((role) => ({ value: role, label: roleLabel(role) }))}
+                  options={ASSIGNABLE_ROLES.map((role) => ({
+                    value: role,
+                    label: roleLabel(role),
+                  }))}
                 />
               </FormField>
               <Button type="submit" disabled={invite.isPending}>
@@ -196,7 +217,9 @@ export function TeamPage() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
                         {member.profiles?.full_name ?? 'Pending member'}
-                        {isSelf ? <span className="ml-2 text-xs text-muted-foreground">You</span> : null}
+                        {isSelf ? (
+                          <span className="ml-2 text-xs text-muted-foreground">You</span>
+                        ) : null}
                       </p>
                       {!manageable ? (
                         <p className="text-xs text-muted-foreground">{roleLabel(member.role)}</p>
@@ -269,7 +292,10 @@ export function TeamPage() {
           <CardContent>
             <ul className="divide-y divide-border">
               {invitations.data.map((invitation) => (
-                <li key={invitation.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                <li
+                  key={invitation.id}
+                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                >
                   <span className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Mail className="size-4" />
                   </span>

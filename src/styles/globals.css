@@ -40,6 +40,10 @@
   --shadow-md: 0 6px 16px -4px rgb(10 14 23 / 0.08), 0 2px 6px -2px rgb(10 14 23 / 0.06);
   --shadow-lg: 0 16px 40px -12px rgb(10 14 23 / 0.14), 0 6px 18px -8px rgb(10 14 23 / 0.1);
   --shadow-xl: 0 28px 70px -16px rgb(10 14 23 / 0.2);
+
+  /* OS geometry — larger, calmer panel radii for the spatial app shell. */
+  --radius-panel: 1.25rem;
+  --radius-dock: 1.5rem;
 }
 
 /* ----------------------------------------------------------------------------
@@ -58,6 +62,12 @@
 
   --background: #ffffff;
   --foreground: #11151f;
+
+  /* OS canvas — the deep surface behind the floating app shell (light variant). */
+  --os-canvas: #eef1f7;
+  --os-glow-a: 0 255 153; /* brand green */
+  --os-glow-b: 106 160 255; /* info blue */
+  --os-glow-strength: 0.1;
 
   --card: #ffffff;
   --card-foreground: #11151f;
@@ -109,6 +119,12 @@
 .dark {
   --background: #0a0e17;
   --foreground: #f7f8fa;
+
+  /* OS canvas — near-black graphite base for the cinematic dark OS. */
+  --os-canvas: #06080d;
+  --os-glow-a: 0 255 153; /* brand green */
+  --os-glow-b: 106 160 255; /* info blue */
+  --os-glow-strength: 0.16;
 
   --card: #11151f;
   --card-foreground: #f7f8fa;
@@ -286,6 +302,61 @@
   box-shadow:
     inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent),
     var(--shadow-md);
+}
+
+/* ----------------------------------------------------------------------------
+ * OS surfaces — the spatial app shell's deep canvas + layered glass tiers.
+ * `os-canvas`  : the deep base behind everything (floating panels sit on it).
+ * `glass-panel`: content surfaces / bento modules (the workhorse).
+ * `glass-dock` : the floating navigation dock — heaviest blur, strongest edge.
+ * `glass-overlay`: command palette, modals, drawers.
+ * ------------------------------------------------------------------------- */
+@utility os-canvas {
+  background-color: var(--os-canvas);
+}
+
+@utility glass-panel {
+  background-color: color-mix(in oklab, var(--card) 76%, transparent);
+  backdrop-filter: blur(20px) saturate(165%);
+  -webkit-backdrop-filter: blur(20px) saturate(165%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 9%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 8%, transparent),
+    var(--shadow-lg);
+}
+
+@utility glass-panel-hover {
+  border-color: color-mix(in oklab, var(--primary) 38%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 12%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--primary) 12%, transparent),
+    var(--shadow-xl);
+}
+
+@utility glass-dock {
+  background-color: color-mix(in oklab, var(--card) 68%, transparent);
+  backdrop-filter: blur(28px) saturate(185%);
+  -webkit-backdrop-filter: blur(28px) saturate(185%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 11%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 12%, transparent),
+    inset 0 -1px 0 0 color-mix(in oklab, var(--background) 30%, transparent),
+    var(--shadow-xl);
+}
+
+@utility glass-overlay {
+  background-color: color-mix(in oklab, var(--card) 82%, transparent);
+  backdrop-filter: blur(28px) saturate(175%);
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 9%, transparent),
+    var(--shadow-xl);
+}
+
+/* Hairline divider that reads on glass in both themes. */
+@utility hairline {
+  border-color: color-mix(in oklab, var(--foreground) 9%, transparent);
 }
 
 /* ----------------------------------------------------------------------------

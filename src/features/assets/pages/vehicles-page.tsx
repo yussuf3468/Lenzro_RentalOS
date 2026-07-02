@@ -12,7 +12,7 @@ import { AssetFormDialog } from '../components/asset-form';
 import { AssetCard } from '../components/asset-card';
 import { CategoryDialog } from '../components/category-dialog';
 import { useAssets, useCategories } from '../hooks/use-assets';
-import { ASSET_STATUSES, SELECT_CLASS, statusMeta } from '../lib/asset-meta';
+import { ASSET_STATUSES, statusMeta } from '../lib/asset-meta';
 import { type Asset } from '../schemas/asset.schema';
 
 export function VehiclesPage() {
@@ -55,9 +55,10 @@ export function VehiclesPage() {
     <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Vehicles</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Fleet</h1>
           <p className="text-muted-foreground">
-            Your fleet{assets.data ? ` — ${assets.data.length} vehicles` : ''}.
+            Your vehicles{assets.data ? ` — ${assets.data.length}` : ''}. Every one is a row on the
+            calendar.
           </p>
         </div>
         <div className="flex items-center gap-2">

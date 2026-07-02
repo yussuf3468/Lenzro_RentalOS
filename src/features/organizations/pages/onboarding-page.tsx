@@ -59,7 +59,8 @@ export function OnboardingPage() {
             What's your business called?
           </h1>
           <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-            It's the name your customers will see. You can change it — and everything else — anytime.
+            It's the name your customers will see. You can change it — and everything else —
+            anytime.
           </p>
 
           <form onSubmit={onSubmit} className="mx-auto mt-8 max-w-md space-y-3" noValidate>
@@ -76,9 +77,7 @@ export function OnboardingPage() {
               className="h-12 text-center text-base"
               {...register('name')}
             />
-            {errors.name ? (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            ) : null}
+            {errors.name ? <p className="text-sm text-destructive">{errors.name.message}</p> : null}
             <Button type="submit" size="lg" className="w-full" disabled={createBusiness.isPending}>
               {createBusiness.isPending ? (
                 'Setting up…'

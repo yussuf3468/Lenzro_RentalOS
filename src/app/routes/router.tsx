@@ -6,6 +6,8 @@ import { assetRoutes } from '@/features/assets';
 import { publicAuthRoutes, sessionAuthRoutes } from '@/features/auth';
 import { customerRoutes } from '@/features/customers';
 import { acceptInviteRoute, appOrgRoutes, onboardingRoute } from '@/features/organizations';
+import { moneyRoutes } from '@/features/money';
+import { rentalRoutes } from '@/features/rentals';
 
 const MarketingHome = lazy(() =>
   import('@/features/marketing').then((m) => ({ default: m.LandingPage })),
@@ -52,6 +54,8 @@ export const router = createBrowserRouter([
                 element: withSuspense(<AppShell />),
                 children: [
                   { index: true, element: withSuspense(<DashboardPage />) },
+                  ...rentalRoutes,
+                  ...moneyRoutes,
                   ...assetRoutes,
                   ...customerRoutes,
                   ...appOrgRoutes,

@@ -44,6 +44,10 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/app/customers')}>
+          <Users />
+          Customers
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/app/staff')}>
           <Users />
           Staff
