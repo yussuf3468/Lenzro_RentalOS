@@ -1,13 +1,20 @@
 import { z } from 'zod';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { type RentalStatus } from '../lib/rental-meta';
-import { rentalSchema, type Rental } from '../schemas/rental.schema';
+import {
+  rentalPhotoSchema,
+  rentalSchema,
+  type Rental,
+  type RentalPhoto,
+} from '../schemas/rental.schema';
 
 const RENTAL_COLUMNS =
   'id,organization_id,asset_id,customer_id,status,start_at,end_at,actual_out_at,actual_return_at,' +
   'daily_rate_amount_minor,total_amount_minor,deposit_amount_minor,paid_amount_minor,currency,' +
-  'pickup_location,return_location,notes,created_at,' +
-  'assets(name,identifier),customers(full_name,phone)';
+  'pickup_location,return_location,notes,odometer_out,odometer_in,fuel_out_pct,fuel_in_pct,' +
+  'created_at,assets(name,identifier),customers(full_name,phone)';
+
+const PHOTO_BUCKET = 'rental-photos';
 
 export interface RentalFilters {
   statuses?: RentalStatus[];
@@ -83,22 +90,96 @@ async function setAssetStatus(assetId: string, status: string): Promise<void> {
   if (error) throw error;
 }
 
+export interface CheckOutData {
+  odometerOut?: number | null;
+  fuelOutPct?: number | null;
+}
+
 /** Keys are handed over — the car leaves the yard. */
-export async function checkOutRental(rental: Rental): Promise<void> {
+export async function checkOutRental(rental: Rental, data: CheckOutData = {}): Promise<void> {
   await updateRental(rental.id, {
     status: 'checked_out',
     actual_out_at: new Date().toISOString(),
+    ...(data.odometerOut != null ? { odometer_out: data.odometerOut } : {}),
+    ...(data.fuelOutPct != null ? { fuel_out_pct: data.fuelOutPct } : {}),
   });
   await setAssetStatus(rental.asset_id, 'rented');
 }
 
+export interface ReturnData {
+  odometerIn?: number | null;
+  fuelInPct?: number | null;
+}
+
 /** The car is back — inspection and settlement happen next. */
-export async function returnRental(rental: Rental): Promise<void> {
+export async function returnRental(rental: Rental, data: ReturnData = {}): Promise<void> {
   await updateRental(rental.id, {
     status: 'returned',
     actual_return_at: new Date().toISOString(),
+    ...(data.odometerIn != null ? { odometer_in: data.odometerIn } : {}),
+    ...(data.fuelInPct != null ? { fuel_in_pct: data.fuelInPct } : {}),
   });
   await setAssetStatus(rental.asset_id, 'available');
+}
+
+/** Single rental by id — powers the checkout/return/contract screens. */
+export async function fetchRental(id: string): Promise<Rental> {
+  const { data, error } = await getSupabaseClient()
+    .from('rentals')
+    .select(RENTAL_COLUMNS)
+    .eq('id', id)
+    .single();
+  if (error) throw error;
+  return rentalSchema.parse(data);
+}
+
+// --- Evidence photos (private bucket, served via signed URLs) ----------------
+export async function fetchRentalPhotos(rentalId: string): Promise<RentalPhoto[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('rental_photos')
+    .select('id,rental_id,phase,slot,path')
+    .eq('rental_id', rentalId)
+    .order('created_at');
+  if (error) throw error;
+  return z.array(rentalPhotoSchema).parse(data);
+}
+
+export async function uploadRentalPhoto(
+  organizationId: string,
+  rentalId: string,
+  phase: 'checkout' | 'return',
+  slot: string,
+  file: File | Blob,
+): Promise<RentalPhoto> {
+  const ext = file instanceof File ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'png';
+  const path = `${organizationId}/${rentalId}/${phase}-${slot}-${crypto.randomUUID()}.${ext}`;
+  const { error: uploadError } = await getSupabaseClient()
+    .storage.from(PHOTO_BUCKET)
+    .upload(path, file, { contentType: file.type || 'image/jpeg', upsert: false });
+  if (uploadError) throw uploadError;
+
+  const { data, error } = await getSupabaseClient()
+    .from('rental_photos')
+    .insert({ rental_id: rentalId, phase, slot, path })
+    .select('id,rental_id,phase,slot,path')
+    .single();
+  if (error) throw error;
+  return rentalPhotoSchema.parse(data);
+}
+
+export async function signedPhotoUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data, error } = await getSupabaseClient()
+    .storage.from(PHOTO_BUCKET)
+    .createSignedUrl(path, 3600);
+  if (error) return null;
+  return data.signedUrl;
+}
+
+export async function deleteRentalPhoto(photo: RentalPhoto): Promise<void> {
+  await getSupabaseClient().storage.from(PHOTO_BUCKET).remove([photo.path]);
+  const { error } = await getSupabaseClient().from('rental_photos').delete().eq('id', photo.id);
+  if (error) throw error;
 }
 
 /** Money squared away — payments are recorded separately; this closes the file. */

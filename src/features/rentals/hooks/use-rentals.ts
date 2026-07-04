@@ -17,6 +17,22 @@ export function useRentals(filters: api.RentalFilters = {}) {
   });
 }
 
+export function useRental(id: string | undefined) {
+  return useQuery({
+    queryKey: ['rentals', 'detail', id],
+    queryFn: () => api.fetchRental(id!),
+    enabled: Boolean(id),
+  });
+}
+
+export function useRentalPhotos(rentalId: string | undefined) {
+  return useQuery({
+    queryKey: ['rental-photos', rentalId],
+    queryFn: () => api.fetchRentalPhotos(rentalId!),
+    enabled: Boolean(rentalId),
+  });
+}
+
 /** All rentals currently holding a car (the working set for Today + Calendar). */
 export function useActiveRentals() {
   return useRentals({ statuses: ['reserved', 'checked_out'] });
@@ -26,6 +42,7 @@ function useInvalidate() {
   const queryClient = useQueryClient();
   return () => {
     void queryClient.invalidateQueries({ queryKey: rentalKeys.all });
+    void queryClient.invalidateQueries({ queryKey: ['rental-photos'] });
     void queryClient.invalidateQueries({ queryKey: ['assets'] });
     void queryClient.invalidateQueries({ queryKey: ['payments'] });
   };
@@ -50,12 +67,22 @@ export type RentalAction = 'check_out' | 'return' | 'cancel' | 'no_show';
 export function useRentalAction() {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: ({ rental, action }: { rental: Rental; action: RentalAction }) => {
+    mutationFn: ({
+      rental,
+      action,
+      checkOutData,
+      returnData,
+    }: {
+      rental: Rental;
+      action: RentalAction;
+      checkOutData?: api.CheckOutData;
+      returnData?: api.ReturnData;
+    }) => {
       switch (action) {
         case 'check_out':
-          return api.checkOutRental(rental);
+          return api.checkOutRental(rental, checkOutData);
         case 'return':
-          return api.returnRental(rental);
+          return api.returnRental(rental, returnData);
         case 'cancel':
           return api.cancelRental(rental);
         case 'no_show':
@@ -63,6 +90,39 @@ export function useRentalAction() {
       }
     },
     onSuccess: invalidate,
+  });
+}
+
+export function useUploadRentalPhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      organizationId,
+      rentalId,
+      phase,
+      slot,
+      file,
+    }: {
+      organizationId: string;
+      rentalId: string;
+      phase: 'checkout' | 'return';
+      slot: string;
+      file: File | Blob;
+    }) => api.uploadRentalPhoto(organizationId, rentalId, phase, slot, file),
+    onSuccess: (_data, vars) => {
+      void queryClient.invalidateQueries({ queryKey: ['rental-photos', vars.rentalId] });
+    },
+  });
+}
+
+export function useDeleteRentalPhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (photo: Parameters<typeof api.deleteRentalPhoto>[0]) =>
+      api.deleteRentalPhoto(photo),
+    onSuccess: (_data, photo) => {
+      void queryClient.invalidateQueries({ queryKey: ['rental-photos', photo.rental_id] });
+    },
   });
 }
 

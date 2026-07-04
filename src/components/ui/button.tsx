@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
         // Glass-on-dark: for buttons sitting on the OS shell's frosted panels.
         glass:
-          'border border-foreground/10 bg-foreground/5 text-foreground hover:bg-foreground/10 active:scale-[0.98]',
+          'border border-white/10 bg-white/5 text-foreground hover:bg-white/10 active:scale-[0.98]',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },

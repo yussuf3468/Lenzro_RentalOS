@@ -19,9 +19,9 @@ export function QuickCommands() {
             <Link
               key={action.label}
               to={action.to}
-              className="flex items-center gap-3 rounded-xl border border-foreground/8 bg-foreground/[0.03] p-3 text-sm transition-colors hover:border-primary/40 hover:bg-foreground/[0.06]"
+              className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] p-3 text-sm transition-colors hover:border-primary/40 hover:bg-white/[0.06]"
             >
-              <span className="flex size-8 items-center justify-center rounded-lg bg-foreground/5 text-muted-foreground">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-white/5 text-muted-foreground">
                 <Icon className="size-4" />
               </span>
               {action.label}

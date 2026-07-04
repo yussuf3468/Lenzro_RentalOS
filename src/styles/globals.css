@@ -430,3 +430,159 @@
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
   color: transparent;
 }
+
+/* ----------------------------------------------------------------------------
+ * Legacy browser support — REQUIRED for our market.
+ * Chrome ≤110 (e.g. the last Chrome on Windows 7, still common in offices and
+ * cybercafés) has no color-mix(). Tailwind's fallback for var-based opacity
+ * utilities (bg-primary/15, …) is the SOLID color, which destroys contrast
+ * (solid cream tiles, invisible text). White tints already use static
+ * `bg-white/N` app-wide; the rules below re-express the remaining accent
+ * tints and frosted surfaces with static rgb() for those browsers only.
+ * Values are the DARK palette — the authenticated app is dark-scoped.
+ * ------------------------------------------------------------------------- */
+@supports not (color: color-mix(in oklab, red, red)) {
+  /* Frosted surfaces fall back to solid, theme-correct panels. */
+  .glass,
+  .glass-strong {
+    background-color: var(--background);
+  }
+  .glass-panel,
+  .glass-overlay,
+  .glass-dock {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+  }
+  .hairline {
+    border-color: var(--border);
+  }
+
+  /* Primary (brand green) tints */
+  .dark .bg-primary\/10,
+  .dark .hover\:bg-primary\/10:hover {
+    background-color: rgb(34 229 154 / 0.1);
+  }
+  .dark .bg-primary\/15 {
+    background-color: rgb(34 229 154 / 0.15);
+  }
+  .dark .bg-primary\/20 {
+    background-color: rgb(34 229 154 / 0.2);
+  }
+  .dark .bg-primary\/70 {
+    background-color: rgb(34 229 154 / 0.7);
+  }
+  .dark .hover\:bg-primary\/90:hover {
+    background-color: rgb(34 229 154 / 0.9);
+  }
+  .dark .hover\:border-primary\/40:hover {
+    border-color: rgb(34 229 154 / 0.4);
+  }
+  .dark .hover\:border-primary\/50:hover {
+    border-color: rgb(34 229 154 / 0.5);
+  }
+  .dark .ring-primary\/25 {
+    --tw-ring-color: rgb(34 229 154 / 0.25);
+  }
+  .dark .ring-primary\/30 {
+    --tw-ring-color: rgb(34 229 154 / 0.3);
+  }
+
+  /* Success */
+  .dark .bg-success\/5 {
+    background-color: rgb(43 212 154 / 0.05);
+  }
+  .dark .bg-success\/10 {
+    background-color: rgb(43 212 154 / 0.1);
+  }
+  .dark .bg-success\/15 {
+    background-color: rgb(43 212 154 / 0.15);
+  }
+  .dark .bg-success\/60 {
+    background-color: rgb(43 212 154 / 0.6);
+  }
+  .dark .border-success\/30 {
+    border-color: rgb(43 212 154 / 0.3);
+  }
+
+  /* Warning */
+  .dark .bg-warning\/10 {
+    background-color: rgb(224 169 59 / 0.1);
+  }
+  .dark .bg-warning\/15 {
+    background-color: rgb(224 169 59 / 0.15);
+  }
+  .dark .bg-warning\/50 {
+    background-color: rgb(224 169 59 / 0.5);
+  }
+
+  /* Info */
+  .dark .bg-info\/5 {
+    background-color: rgb(106 160 255 / 0.05);
+  }
+  .dark .bg-info\/10 {
+    background-color: rgb(106 160 255 / 0.1);
+  }
+  .dark .bg-info\/15 {
+    background-color: rgb(106 160 255 / 0.15);
+  }
+  .dark .bg-info\/70 {
+    background-color: rgb(106 160 255 / 0.7);
+  }
+  .dark .border-info\/30 {
+    border-color: rgb(106 160 255 / 0.3);
+  }
+
+  /* Destructive */
+  .dark .bg-destructive\/5 {
+    background-color: rgb(241 97 79 / 0.05);
+  }
+  .dark .bg-destructive\/10,
+  .dark .data-\[variant\=destructive\]\:focus\:bg-destructive\/10:focus,
+  .dark .hover\:bg-destructive\/10:hover {
+    background-color: rgb(241 97 79 / 0.1);
+  }
+  .dark .bg-destructive\/15 {
+    background-color: rgb(241 97 79 / 0.15);
+  }
+  .dark .bg-destructive\/80 {
+    background-color: rgb(241 97 79 / 0.8);
+  }
+  .dark .hover\:bg-destructive\/90:hover {
+    background-color: rgb(241 97 79 / 0.9);
+  }
+  .dark .border-destructive\/30 {
+    border-color: rgb(241 97 79 / 0.3);
+  }
+  .dark .aria-invalid\:ring-destructive\/20[aria-invalid='true'] {
+    --tw-ring-color: rgb(241 97 79 / 0.2);
+  }
+
+  /* Neutral hovers, rows, dividers */
+  .dark .hover\:bg-muted\/40:hover {
+    background-color: rgb(20 25 37 / 0.4);
+  }
+  .dark .hover\:bg-muted\/50:hover {
+    background-color: rgb(20 25 37 / 0.5);
+  }
+  .dark .border-border\/50 {
+    border-color: rgb(34 42 55 / 0.5);
+  }
+  .dark .bg-muted-foreground\/40 {
+    background-color: rgb(138 147 162 / 0.4);
+  }
+  .dark .text-muted-foreground\/40 {
+    color: rgb(138 147 162 / 0.4);
+  }
+  .dark .text-muted-foreground\/60 {
+    color: rgb(138 147 162 / 0.6);
+  }
+
+  /* Focus rings stay visible */
+  .dark .focus-visible\:ring-ring\/50:focus-visible {
+    --tw-ring-color: rgb(34 229 154 / 0.5);
+  }
+  .dark .focus-visible\:ring-ring\/60:focus-visible {
+    --tw-ring-color: rgb(34 229 154 / 0.6);
+  }
+}

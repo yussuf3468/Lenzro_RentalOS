@@ -183,14 +183,20 @@ export function CalendarPage() {
                       gridTemplateColumns: `minmax(10rem, 12rem) repeat(${DAYS_SHOWN}, minmax(3.4rem, 1fr))`,
                     }}
                   >
-                    <div className="min-w-0 px-4 py-3">
-                      <p className="truncate text-sm font-medium">{asset.name}</p>
+                    <Link
+                      to={`/app/vehicles/${asset.id}`}
+                      className="group min-w-0 px-4 py-3"
+                      aria-label={`Open ${asset.name}`}
+                    >
+                      <p className="truncate text-sm font-medium group-hover:underline">
+                        {asset.name}
+                      </p>
                       {asset.identifier ? (
                         <p className="truncate font-mono text-[10px] text-muted-foreground">
                           {asset.identifier}
                         </p>
                       ) : null}
-                    </div>
+                    </Link>
                     {days.map((day) => {
                       const rental = assetRentals.find((r) => coversDay(r, day));
                       const isPast = day.getTime() < todayStart;
@@ -202,7 +208,7 @@ export function CalendarPage() {
                             aria-label={`Book ${asset.name} on ${day.toDateString()}`}
                             onClick={() => setBooking({ assetId: asset.id, start: day })}
                             className={cn(
-                              'group relative border-l border-foreground/5 transition-colors hover:bg-primary/10',
+                              'group relative border-l border-white/5 transition-colors hover:bg-primary/10',
                               isPast && 'opacity-50',
                             )}
                           >
@@ -224,7 +230,7 @@ export function CalendarPage() {
                           title={`${rental.customers?.full_name ?? 'Booked'} · ${STATUS_META[rental.status].label}`}
                           aria-label={`${asset.name}: ${rental.customers?.full_name ?? 'booked'}`}
                           onClick={() => navigate('/app/rentals')}
-                          className="relative border-l border-foreground/5 py-3"
+                          className="relative border-l border-white/5 py-3"
                         >
                           <span
                             className={cn(

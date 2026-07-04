@@ -48,14 +48,16 @@ export function Dock() {
   const navigate = useNavigate();
   const reduce = useReducedMotion();
   const direction = useScrollDirection();
-  const hidden = !reduce && direction === 'down';
+  // Full-screen modes (checkout / return / contract) own the bottom edge.
+  const inFlow = /\/app\/rentals\/[^/]+\/(checkout|return|contract)/.test(location.pathname);
+  const hidden = inFlow || (!reduce && direction === 'down');
 
   return (
     <motion.div
       initial={false}
       animate={{ y: hidden ? 120 : 0, opacity: hidden ? 0 : 1 }}
       transition={springs.dock}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4 sm:p-6"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4 sm:p-6 print:hidden"
     >
       <nav
         aria-label="Primary"
@@ -104,7 +106,7 @@ export function Dock() {
           );
         })}
 
-        <span className="mx-0.5 h-7 w-px bg-foreground/10" aria-hidden />
+        <span className="mx-0.5 h-7 w-px bg-white/10" aria-hidden />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

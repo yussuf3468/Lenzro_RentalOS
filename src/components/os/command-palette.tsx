@@ -228,7 +228,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors',
                           isActive && !cmd.disabled
                             ? 'bg-primary/15 text-foreground'
-                            : 'text-foreground/90',
+                            : 'text-white/90',
                           cmd.disabled && 'cursor-default opacity-45',
                         )}
                       >

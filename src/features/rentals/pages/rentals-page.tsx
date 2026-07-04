@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { AlertTriangle, KeyRound, Phone, Plus } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { AlertTriangle, FileText, KeyRound, Phone, Plus } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/empty-state';
 import { GlassPanel } from '@/components/os';
@@ -24,8 +24,15 @@ function RentalRow({ rental, now, actions }: { rental: Rental; now: number; acti
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3 first:pt-0 last:pb-0">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
-          {rental.customers?.full_name ?? 'Customer'}
-          <span className="text-muted-foreground"> · {rental.assets?.name ?? 'Car'}</span>
+          <Link to={`/app/customers/${rental.customer_id}`} className="hover:underline">
+            {rental.customers?.full_name ?? 'Customer'}
+          </Link>
+          <span className="text-muted-foreground">
+            {' · '}
+            <Link to={`/app/vehicles/${rental.asset_id}`} className="hover:underline">
+              {rental.assets?.name ?? 'Car'}
+            </Link>
+          </span>
           {rental.assets?.identifier ? (
             <span className="ml-1.5 font-mono text-xs text-muted-foreground">
               {rental.assets.identifier}
@@ -83,12 +90,13 @@ function Section({
 }) {
   return (
     <GlassPanel eyebrow={eyebrow} title={title} variant={accent ? 'accent' : 'panel'}>
-      <ul className="divide-y divide-foreground/8">{children}</ul>
+      <ul className="divide-y divide-white/8">{children}</ul>
     </GlassPanel>
   );
 }
 
 export function RentalsPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [bookingOpen, setBookingOpen] = useState(() => searchParams.get('new') === '1');
   const [extending, setExtending] = useState<Rental | null>(null);
@@ -102,6 +110,16 @@ export function RentalsPage() {
   const closeBooking = (open: boolean) => {
     setBookingOpen(open);
     if (!open && searchParams.get('new')) setSearchParams({}, { replace: true });
+  };
+
+  // Arriving from the return flow (?settle=<id>) opens the settle dialog directly.
+  const settleParam = searchParams.get('settle');
+  const settleTarget =
+    settling ?? (settleParam ? (rentals.data?.find((r) => r.id === settleParam) ?? null) : null);
+  const closeSettle = (open: boolean) => {
+    if (open) return;
+    setSettling(null);
+    if (settleParam) setSearchParams({}, { replace: true });
   };
 
   const groups = useMemo(() => {
@@ -120,29 +138,33 @@ export function RentalsPage() {
     };
   }, [rentals.data, now]);
 
-  const run = (rental: Rental, action: 'check_out' | 'return' | 'cancel' | 'no_show') => {
+  // Cancel / no-show stay one-tap; checkout & return go through the guided flows.
+  const run = (rental: Rental, action: 'cancel' | 'no_show') => {
     if (action === 'cancel' && !window.confirm('Cancel this booking?')) return;
     if (action === 'no_show' && !window.confirm('Mark this booking as a no-show?')) return;
     act.mutate(
       { rental, action },
       {
-        onSuccess: () => {
-          const name = rental.customers?.full_name ?? 'customer';
-          const car = rental.assets?.name ?? 'car';
-          toast.success(
-            action === 'check_out'
-              ? `${car} checked out to ${name}`
-              : action === 'return'
-                ? `${car} is back — settle when ready`
-                : action === 'cancel'
-                  ? 'Booking cancelled'
-                  : 'Marked as no-show',
-          );
-        },
+        onSuccess: () =>
+          toast.success(action === 'cancel' ? 'Booking cancelled' : 'Marked as no-show'),
         onError: (error) => toast.error(toMessage(error)),
       },
     );
   };
+
+  const contractLink = (rental: Rental) => (
+    <Button
+      asChild
+      size="sm"
+      variant="ghost"
+      aria-label="Contract"
+      className="text-muted-foreground"
+    >
+      <Link to={`/app/rentals/${rental.id}/contract`}>
+        <FileText />
+      </Link>
+    </Button>
+  );
 
   const isEmpty = (rentals.data ?? []).length === 0;
 
@@ -193,6 +215,7 @@ export function RentalsPage() {
                   now={now}
                   actions={
                     <div className="flex gap-1.5">
+                      {contractLink(rental)}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -204,8 +227,11 @@ export function RentalsPage() {
                       <Button size="sm" variant="glass" onClick={() => setExtending(rental)}>
                         Extend
                       </Button>
-                      <Button size="sm" onClick={() => run(rental, 'return')}>
-                        Returned
+                      <Button
+                        size="sm"
+                        onClick={() => navigate(`/app/rentals/${rental.id}/return`)}
+                      >
+                        Return
                       </Button>
                     </div>
                   }
@@ -223,6 +249,7 @@ export function RentalsPage() {
                   now={now}
                   actions={
                     <div className="flex gap-1.5">
+                      {contractLink(rental)}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -234,8 +261,11 @@ export function RentalsPage() {
                       <Button size="sm" variant="glass" onClick={() => setExtending(rental)}>
                         Extend
                       </Button>
-                      <Button size="sm" onClick={() => run(rental, 'return')}>
-                        Returned
+                      <Button
+                        size="sm"
+                        onClick={() => navigate(`/app/rentals/${rental.id}/return`)}
+                      >
+                        Return
                       </Button>
                     </div>
                   }
@@ -253,6 +283,7 @@ export function RentalsPage() {
                   now={now}
                   actions={
                     <div className="flex gap-1.5">
+                      {contractLink(rental)}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -269,7 +300,10 @@ export function RentalsPage() {
                       >
                         Payment
                       </Button>
-                      <Button size="sm" onClick={() => run(rental, 'check_out')}>
+                      <Button
+                        size="sm"
+                        onClick={() => navigate(`/app/rentals/${rental.id}/checkout`)}
+                      >
                         <KeyRound /> Check out
                       </Button>
                     </div>
@@ -330,7 +364,7 @@ export function RentalsPage() {
 
       <BookingSheet open={bookingOpen} onOpenChange={closeBooking} />
       <ExtendDialog rental={extending} onOpenChange={(open) => !open && setExtending(null)} />
-      <SettleDialog rental={settling} onOpenChange={(open) => !open && setSettling(null)} />
+      <SettleDialog rental={settleTarget} onOpenChange={closeSettle} />
       <RecordPaymentDialog rental={paying} onOpenChange={(open) => !open && setPaying(null)} />
     </div>
   );

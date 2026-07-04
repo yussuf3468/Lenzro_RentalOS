@@ -75,7 +75,7 @@ export function OpsTimeline({ ops, now }: { ops: TodayOps; now: number }) {
     >
       {total === 0 ? (
         <div className="flex h-full flex-col items-center justify-center gap-3 py-8 text-center">
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-foreground/5 text-muted-foreground">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-white/5 text-muted-foreground">
             <CalendarClock className="size-6" />
           </span>
           <p className="text-sm font-medium">Nothing scheduled today</p>
@@ -90,7 +90,7 @@ export function OpsTimeline({ ops, now }: { ops: TodayOps; now: number }) {
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-foreground/8">
+        <ul className="divide-y divide-white/8">
           {ops.overdue.map((rental) => (
             <OpsRow key={rental.id} rental={rental} kind="overdue" now={now} />
           ))}

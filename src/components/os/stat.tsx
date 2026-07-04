@@ -16,13 +16,18 @@ interface StatProps {
 /** A dense metric: small label, large tabular figure, optional delta + caption. */
 export function Stat({ label, value, caption, icon: Icon, accent, delta, className }: StatProps) {
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
+    <div className={cn('flex min-w-0 flex-col gap-1', className)}>
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {Icon ? <Icon className="size-3.5" /> : null}
         <span className="truncate">{label}</span>
       </div>
-      <div className="flex items-baseline gap-2">
-        <span className={cn('font-mono text-2xl leading-none font-semibold tabular-nums', accent)}>
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span
+          className={cn(
+            'min-w-0 font-mono text-xl leading-tight font-semibold tracking-tight break-words tabular-nums sm:text-2xl',
+            accent,
+          )}
+        >
           {value}
         </span>
         {delta ? (

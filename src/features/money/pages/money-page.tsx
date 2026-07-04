@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle, MessageCircle, Plus, Trash2, Wallet } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/empty-state';
 import { GlassPanel, Stat } from '@/components/os';
@@ -191,7 +192,7 @@ export function MoneyPage() {
 
           {toCollect.length > 0 ? (
             <GlassPanel eyebrow="Chase it" title="To collect" variant="accent">
-              <ul className="divide-y divide-foreground/8">
+              <ul className="divide-y divide-white/8">
                 {toCollect.map(({ rental, owed }) => (
                   <li
                     key={rental.id}
@@ -199,10 +200,17 @@ export function MoneyPage() {
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
-                        {rental.customers?.full_name ?? 'Customer'}
+                        <Link
+                          to={`/app/customers/${rental.customer_id}`}
+                          className="hover:underline"
+                        >
+                          {rental.customers?.full_name ?? 'Customer'}
+                        </Link>
                         <span className="text-muted-foreground">
-                          {' '}
-                          · {rental.assets?.name ?? 'Car'}
+                          {' · '}
+                          <Link to={`/app/vehicles/${rental.asset_id}`} className="hover:underline">
+                            {rental.assets?.name ?? 'Car'}
+                          </Link>
                         </span>
                       </p>
                       <p className="text-xs text-muted-foreground capitalize">
@@ -248,7 +256,7 @@ export function MoneyPage() {
                   </p>
                 </div>
               ) : (
-                <ul className="divide-y divide-foreground/8">
+                <ul className="divide-y divide-white/8">
                   {periodPayments.map((payment) => (
                     <li
                       key={payment.id}
@@ -316,7 +324,7 @@ export function MoneyPage() {
                   </p>
                 </div>
               ) : (
-                <ul className="divide-y divide-foreground/8">
+                <ul className="divide-y divide-white/8">
                   {periodExpenses.map((expense) => (
                     <li
                       key={expense.id}
@@ -372,7 +380,7 @@ export function MoneyPage() {
                     {perCar.map((row) => {
                       const profit = row.collected - row.spent;
                       return (
-                        <tr key={row.name} className="border-b border-foreground/5 last:border-0">
+                        <tr key={row.name} className="border-b border-white/5 last:border-0">
                           <td className="py-2.5 pr-3 font-medium">{row.name}</td>
                           <td className="py-2.5 pr-3 text-right font-mono tabular-nums">
                             {formatMoney(row.collected)}

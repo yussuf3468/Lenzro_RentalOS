@@ -22,11 +22,24 @@ export const rentalSchema = z.object({
   pickup_location: z.string().nullable(),
   return_location: z.string().nullable(),
   notes: z.string().nullable(),
+  odometer_out: z.number().nullable(),
+  odometer_in: z.number().nullable(),
+  fuel_out_pct: z.number().nullable(),
+  fuel_in_pct: z.number().nullable(),
   created_at: z.string(),
   assets: z.object({ name: z.string(), identifier: z.string().nullable() }).nullable(),
   customers: z.object({ full_name: z.string(), phone: z.string().nullable() }).nullable(),
 });
 export type Rental = z.infer<typeof rentalSchema>;
+
+export const rentalPhotoSchema = z.object({
+  id: z.string(),
+  rental_id: z.string(),
+  phase: z.enum(['checkout', 'return']),
+  slot: z.string(),
+  path: z.string(),
+});
+export type RentalPhoto = z.infer<typeof rentalPhotoSchema>;
 
 // ---------------------------------------------------------------------------
 // Booking form — strings (what inputs hold), converted on submit.

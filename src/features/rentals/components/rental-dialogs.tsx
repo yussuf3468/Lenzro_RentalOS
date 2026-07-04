@@ -183,7 +183,7 @@ function SettleBody({ rental, onDone }: { rental: Rental; onDone: () => void }) 
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
-      <div className="space-y-1.5 rounded-xl border border-foreground/10 bg-foreground/3 p-3 text-sm">
+      <div className="space-y-1.5 rounded-xl border border-white/10 bg-white/3 p-3 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Rental price</span>
           <span className="font-mono tabular-nums">

@@ -16,7 +16,7 @@ export function AssistantTile() {
             </p>
           </div>
         </div>
-        <span className="rounded-full border border-foreground/10 px-3 py-1 text-xs whitespace-nowrap text-muted-foreground">
+        <span className="rounded-full border border-white/10 px-3 py-1 text-xs whitespace-nowrap text-muted-foreground">
           Coming soon
         </span>
       </div>

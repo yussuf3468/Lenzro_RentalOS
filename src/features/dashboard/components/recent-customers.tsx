@@ -20,21 +20,26 @@ export function RecentCustomers({ customers }: { customers: Customer[] }) {
           No customers yet — add your first to start renting.
         </p>
       ) : (
-        <ul className="divide-y divide-foreground/8">
+        <ul className="divide-y divide-white/8">
           {customers.map((customer) => (
-            <li key={customer.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-foreground/8 text-xs font-medium">
-                {getInitials(customer.full_name)}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{customer.full_name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {customer.phone ?? customer.email ?? '—'}
-                </p>
-              </div>
-              <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-muted-foreground capitalize">
-                {customer.type}
-              </span>
+            <li key={customer.id}>
+              <Link
+                to={`/app/customers/${customer.id}`}
+                className="flex items-center gap-3 rounded-lg py-2.5 transition-colors first:pt-0 last:pb-0 hover:bg-white/5"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/8 text-xs font-medium">
+                  {getInitials(customer.full_name)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{customer.full_name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {customer.phone ?? customer.email ?? '—'}
+                  </p>
+                </div>
+                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-muted-foreground capitalize">
+                  {customer.type}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

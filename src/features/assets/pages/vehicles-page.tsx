@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AlertTriangle, Car, Plus, Search, Tags } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/empty-state';
 import { Stagger, StaggerItem } from '@/components/motion-primitives';
 import { Button } from '@/components/ui/button';
@@ -17,11 +18,11 @@ import { type Asset } from '../schemas/asset.schema';
 
 export function VehiclesPage() {
   const { claims } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Asset | undefined>(undefined);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const categories = useCategories();
@@ -42,14 +43,9 @@ export function VehiclesPage() {
   const categoryName = (id: string | null) =>
     id ? categories.data?.find((category) => category.id === id)?.name : undefined;
 
-  const openCreate = () => {
-    setEditing(undefined);
-    setFormOpen(true);
-  };
-  const openEdit = (asset: Asset) => {
-    setEditing(asset);
-    setFormOpen(true);
-  };
+  const openCreate = () => setFormOpen(true);
+  // Cards open the vehicle's profile (its digital twin) — editing lives there.
+  const openProfile = (asset: Asset) => navigate(`/app/vehicles/${asset.id}`);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -140,7 +136,7 @@ export function VehiclesPage() {
               <AssetCard
                 asset={asset}
                 categoryName={categoryName(asset.category_id)}
-                onEdit={() => openEdit(asset)}
+                onEdit={() => openProfile(asset)}
               />
             </StaggerItem>
           ))}
@@ -150,7 +146,6 @@ export function VehiclesPage() {
       <AssetFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        asset={editing}
         categories={categories.data ?? []}
         organizationId={claims.organizationId}
       />

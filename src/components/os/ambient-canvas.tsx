@@ -6,7 +6,10 @@
  */
 export function AmbientCanvas() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden print:hidden"
+    >
       <div
         className="absolute -top-[24%] -left-[10%] size-[44rem] animate-[aurora-drift-1_28s_ease-in-out_infinite] rounded-full blur-[160px] will-change-transform"
         style={{

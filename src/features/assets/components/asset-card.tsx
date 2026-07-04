@@ -1,4 +1,4 @@
-import { Car, Pencil } from 'lucide-react';
+import { ArrowUpRight, Car } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { formatMoney } from '@/lib/format';
 import { imageUrl } from '../api/assets.api';
@@ -43,7 +43,7 @@ export function AssetCard({ asset, categoryName, onEdit }: AssetCardProps) {
                 {categoryName ? ` · ${categoryName}` : ''}
               </p>
             </div>
-            <Pencil className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            <ArrowUpRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <p className="mt-3 font-mono text-sm font-semibold tabular-nums">
             {formatMoney(asset.daily_rate_amount_minor, asset.currency)}

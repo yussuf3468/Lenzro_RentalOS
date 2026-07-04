@@ -39,7 +39,7 @@ export function FleetStatusGrid({
             <button
               type="button"
               onClick={() => navigate('/app/vehicles')}
-              className="w-full rounded-xl border border-foreground/8 bg-foreground/[0.03] p-4 text-left transition-colors hover:border-primary/40 hover:bg-foreground/[0.06]"
+              className="w-full rounded-xl border border-white/8 bg-white/[0.03] p-4 text-left transition-colors hover:border-primary/40 hover:bg-white/[0.06]"
             >
               <Stat
                 label={tile.label}
@@ -53,7 +53,7 @@ export function FleetStatusGrid({
       </div>
       {fleet.total > 0 ? (
         <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-foreground/10">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full bg-gradient-brand"
               style={{ width: `${utilization}%` }}

@@ -13,7 +13,10 @@ function minorUnitDivisor(currency: string): number {
   return ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase()) ? 1 : 100;
 }
 
-/** Format minor units as currency, e.g. formatMoney(125000000, 'KES') → "KES 1,250,000.00". */
+/**
+ * Format minor units as currency, e.g. formatMoney(125000000, 'KES') → "KES 1,250,000".
+ * Whole amounts drop the decimals (brand convention); fractional amounts keep them.
+ */
 export function formatMoney(
   amountMinor: number,
   currency: string = DEFAULT_CURRENCY,
@@ -24,6 +27,8 @@ export function formatMoney(
     style: 'currency',
     currency,
     currencyDisplay: 'code',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
   }).format(amount);
 }
 

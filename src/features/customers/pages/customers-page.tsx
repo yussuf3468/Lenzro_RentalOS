@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AlertTriangle, Plus, Search, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/empty-state';
 import { SimpleSelect } from '@/components/form/form-select';
 import { Button } from '@/components/ui/button';
@@ -16,10 +17,10 @@ import { CUSTOMER_STATUSES, type Customer } from '../schemas/customer.schema';
 
 export function CustomersPage() {
   const { claims } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Customer | undefined>(undefined);
 
   const customers = useCustomers({ status: status || undefined });
   const hasFilters = Boolean(search || status);
@@ -32,14 +33,9 @@ export function CustomersPage() {
       (customer.id_number ?? '').toLowerCase().includes(query),
   );
 
-  const openCreate = () => {
-    setEditing(undefined);
-    setFormOpen(true);
-  };
-  const openEdit = (customer: Customer) => {
-    setEditing(customer);
-    setFormOpen(true);
-  };
+  const openCreate = () => setFormOpen(true);
+  // Rows open the customer's living profile — editing lives there.
+  const openProfile = (customer: Customer) => navigate(`/app/customers/${customer.id}`);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -134,7 +130,7 @@ export function CustomersPage() {
                   {visible.map((customer) => (
                     <tr
                       key={customer.id}
-                      onClick={() => openEdit(customer)}
+                      onClick={() => openProfile(customer)}
                       className="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-muted/50"
                     >
                       <td className="px-5 py-3">
@@ -185,7 +181,6 @@ export function CustomersPage() {
       <CustomerFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        customer={editing}
         organizationId={claims.organizationId}
       />
     </div>

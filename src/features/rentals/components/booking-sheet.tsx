@@ -39,6 +39,7 @@ const PAY_METHODS = [
 
 export interface BookingPrefill {
   assetId?: string;
+  customerId?: string;
   start?: Date;
   end?: Date;
 }
@@ -88,7 +89,7 @@ function BookingBody({ prefill, onDone }: { prefill?: BookingPrefill; onDone: ()
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       asset_id: prefill?.assetId ?? '',
-      customer_id: '',
+      customer_id: prefill?.customerId ?? '',
       start_at: window.start,
       end_at: window.end,
       total: '',
@@ -209,7 +210,7 @@ function BookingBody({ prefill, onDone }: { prefill?: BookingPrefill; onDone: ()
             </Button>
           </div>
           {newCustomerOpen ? (
-            <div className="flex flex-col gap-2 rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 sm:flex-row">
+            <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:flex-row">
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}

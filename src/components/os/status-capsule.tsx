@@ -23,7 +23,7 @@ function TrialBadge() {
 /** Floating top chrome — org switcher (left) and controls (right) as glass pills. */
 export function StatusCapsule({ onOpenCommand }: { onOpenCommand: () => void }) {
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-2 p-3 sm:p-4">
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-2 p-3 sm:p-4 print:hidden">
       <div className="pointer-events-auto flex items-center rounded-full glass-panel p-1">
         <OrgSwitcher />
       </div>
